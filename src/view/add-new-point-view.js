@@ -170,5 +170,4 @@ export default class AddNewPointView extends AbstractView {
   get template() {
     return createAddNewPointTemplate();
   }
-
 }
