@@ -7,19 +7,9 @@ function createTripTotalPriceTemplate() {
 }
 
 export default class TripTotalPriceView {
-  getTemplate() {
+  
+  get template() {
     return createTripTotalPriceTemplate();
   }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
+  
 }

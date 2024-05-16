@@ -9,19 +9,9 @@ function createTripRouteTemplate() {
 }
 
 export default class TripRouteView {
-  getTemplate() {
+  
+  get template() {
     return createTripRouteTemplate();
   }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
+  
 }
