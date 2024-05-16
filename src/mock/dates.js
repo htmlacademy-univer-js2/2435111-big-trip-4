@@ -1,10 +1,10 @@
 import dayjs from 'dayjs';
-import { getRandomInteger } from '../utils.js';
+import { getRandomInteger } from '../utils/common.js';
 
 
 const TimesRanges = {
   DAYS: {
-    MIN: 1,
+    MIN: -3,
     MAX: 3
   },
   HOURS: {

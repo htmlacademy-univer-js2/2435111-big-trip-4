@@ -1,6 +1,6 @@
-import { getRandomArrayElement, getRandomElementsArray, getRandomInteger } from '../utils.js';
+import { getRandomArrayElement, getRandomElementsArray, getRandomInteger } from '../utils/common.js';
 
-const CITY_NAMES = ['Chamonix', 'Amsterdam', 'Geneva', 'Paris', 'Berlin', 'Tokyo'];
+const CITY_NAMES = ['Chamonix', 'Amsterdam', 'Geneva', 'Paris', 'Berlin', 'Tokyo', 'Moscow', 'New York', 'Sydney'];
 
 const DESTINATION_DESCRIPTIONS = [
   'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',

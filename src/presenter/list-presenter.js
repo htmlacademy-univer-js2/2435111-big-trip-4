@@ -2,8 +2,8 @@ import EditPointView from '../view/edit-point-view.js';
 import PointListView from '../view/point-list-view.js';
 import PointListMessageView from '../view/point-list-empty-message-view.js';
 import PointView from '../view/point-view.js';
-import { render } from '../render.js';
-import { isEscapeKey } from '../utils.js';
+import { isEscapeKey } from '../utils/point.js';
+import { render, replace } from '../framework/render.js';
 
 
 export default class ListPresenter {
@@ -45,7 +45,7 @@ export default class ListPresenter {
     const pointComponent = new PointView({
       point,
       onRollupButtonClick: () => {
-        replacePointToForm.call(this);
+        replacePointToForm(this);
         document.addEventListener('keydown', escapeKeydownHandler);
       }
     });
@@ -53,23 +53,24 @@ export default class ListPresenter {
     const pointEditComponent = new EditPointView({
       point,
       onFormSubmit: () => {
-        replaceFormToPoint.call(this);
+        replaceFormToPoint(this);
         document.removeEventListener('keydown', escapeKeydownHandler);
       },
       onRollupButtonClick: () => {
-        replaceFormToPoint.call(this);
+        replaceFormToPoint(this);
         document.removeEventListener('keydown', escapeKeydownHandler);
       }
     });
 
     function replaceFormToPoint() {
-      this.#listComponent.element.replaceChild(pointComponent.element, pointEditComponent.element);
+      replace(pointComponent, pointEditComponent);
     }
 
     function replacePointToForm() {
-      this.#listComponent.element.replaceChild(pointEditComponent.element, pointComponent.element);
+      replace(pointEditComponent, pointComponent);
     }
 
     render(pointComponent, this.#listComponent.element);
   }
 }
+
