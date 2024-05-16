@@ -4,10 +4,12 @@ import TripTotalPriceView from '../view/trip-total-price-view.js';
 import { render, RenderPosition } from '../render.js';
 
 export default class TripInfoPresenter {
-  tripInfoComponent = new TripInfoView();
+  #tripInfoContainer = null;
+
+  #tripInfoComponent = new TripInfoView();
 
   constructor({ tripInfoContainer }) {
-    this.tripInfoContainer = tripInfoContainer;
+    this.#tripInfoContainer = tripInfoContainer;
   }
 
   init() {
