@@ -7,7 +7,7 @@ function createPointListTemplate() {
 export default class PointListView extends AbstractView {
 
   get template() {
-    return createFilterTemplate();
+    return createPointListTemplate();
   }
-  
+
 }

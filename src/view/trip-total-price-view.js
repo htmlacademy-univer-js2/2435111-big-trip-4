@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 function createTripTotalPriceTemplate() {
   return `<p class="trip-info__cost">
@@ -6,10 +6,11 @@ function createTripTotalPriceTemplate() {
           </p>`;
 }
 
-export default class TripTotalPriceView {
-  
+export default class TripTotalPriceView extends AbstractView {
+
   get template() {
     return createTripTotalPriceTemplate();
   }
-  
+
 }
+

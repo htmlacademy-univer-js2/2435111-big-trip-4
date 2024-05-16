@@ -1,6 +1,6 @@
-import AddNewPointView from '../view/add-new-point-view.js';
 import EditPointView from '../view/edit-point-view.js';
 import PointListView from '../view/point-list-view.js';
+import PointListMessageView from '../view/point-list-empty-message-view.js';
 import PointView from '../view/point-view.js';
 import { render } from '../render.js';
 import { isEscapeKey } from '../utils.js';
