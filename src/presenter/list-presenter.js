@@ -4,17 +4,20 @@ import { render, RenderPosition } from '../framework/render.js';
 import PointPresenter from './point-presenter.js';
 import SortView from '../view/sort-view.js';
 import { updateItem } from '../utils/common.js';
+import { SortType } from '../const.js';
+import { sortByDay, sortByTime, sortByPrice } from '../utils/point.js';
 
 export default class ListPresenter {
   #listContainer = null;
   #pointsModel = null;
 
   #listComponent = new PointListView();
-  #sortComponent = new SortView();
+  #sortComponent = null;
   #listMessageComponent = new PointListMessageView();
 
   #listPoints = [];
   #pointPresenter = new Map();
+  #currentSortType = SortType.DAY;
 
   constructor({ listContainer, pointsModel }) {
     this.#listContainer = listContainer;
@@ -24,7 +27,7 @@ export default class ListPresenter {
   init() {
     this.#listPoints = [...this.#pointsModel.points];
 
-    this.#renderList();
+    this.#renderBoard();
   }
 
   #renderPoint(point) {
@@ -46,7 +49,36 @@ export default class ListPresenter {
     this.#pointPresenter.forEach((presenter) => presenter.resetView());
   };
 
+  #handleSortTypeChange = (sortType) => {
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+
+    this.#sortPoints(sortType);
+    this.#clearPointList();
+    this.#renderList();
+  };
+
+  #sortPoints(sortType) {
+    switch (sortType) {
+      case SortType.PRICE:
+        this.#listPoints.sort(sortByPrice);
+        break;
+      case SortType.TIME:
+        this.#listPoints.sort(sortByTime);
+        break;
+      default:
+        this.#listPoints.sort(sortByDay);
+    }
+
+    this.#currentSortType = sortType;
+  }
+
   #renderSort() {
+    this.#sortComponent = new SortView({
+      onSortTypeChange: this.#handleSortTypeChange
+    });
+
     render(this.#sortComponent, this.#listContainer, RenderPosition.AFTERBEGIN);
   }
 
@@ -63,13 +95,17 @@ export default class ListPresenter {
     render(this.#listComponent, this.#listContainer);
 
     if (this.#listPoints.length) {
+      this.#sortPoints(this.#currentSortType);
       for (let i = 0; i < this.#listPoints.length; i++) {
         this.#renderPoint(this.#listPoints[i]);
       }
     } else {
       this.#renderListMessage();
     }
+  }
 
+  #renderBoard() {
     this.#renderSort();
+    this.#renderList();
   }
 }
