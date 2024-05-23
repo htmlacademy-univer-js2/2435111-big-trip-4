@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid';
 import { getRandomArrayElement, getRandomInteger } from '../utils/common.js';
 import { POINT_TYPES } from './const.js';
 import { createRandomDates } from './dates.js';
@@ -28,7 +29,7 @@ const getRandomIdsArray = () => {
   return ids;
 };
 
-const createPoint = (count) => {
+const createPoint = () => {
   const randomDates = createRandomDates();
 
   return {
@@ -36,13 +37,13 @@ const createPoint = (count) => {
     dateFrom: randomDates.dateFrom,
     dateTo: randomDates.dateTo,
     destination: getRandomArrayElement(destinations).id,
-    id: count,
+    id: nanoid(),
     isFavorite: Boolean(getRandomInteger(0, 1)),
     offers: getRandomIdsArray(),
     type: getRandomArrayElement(POINT_TYPES)
   };
 };
 
-const createMockPoints = (count) => Array.from({ length: count }, (_, index) => createPoint(index));
+const createMockPoints = (count) => Array.from({ length: count }, createPoint);
 
 export { createMockPoints, offersByType, destinations };
