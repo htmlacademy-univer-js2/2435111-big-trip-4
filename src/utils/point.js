@@ -13,4 +13,10 @@ const isPresentEvent = (dateFrom, dateTo) => dayjs(dateFrom).isSameOrBefore(dayj
 
 const isFutureEvent = (dateFrom) => dayjs(dateFrom).isAfter(dayjs());
 
-export { isEscapeKey, isPastEvent, isPresentEvent, isFutureEvent };
+const sortByDay = (pointA, pointB) => dayjs(pointA.dateFrom).diff(dayjs(pointB.dateFrom));
+
+const sortByTime = (pointA, pointB) => dayjs(pointB.dateTo).diff(pointB.dateFrom) - dayjs(pointA.dateTo).diff(pointA.dateFrom);
+
+const sortByPrice = (pointA, pointB) => pointB.basePrice - pointA.basePrice;
+
+export { isEscapeKey, isPastEvent, isPresentEvent, isFutureEvent, sortByDay, sortByTime, sortByPrice };
