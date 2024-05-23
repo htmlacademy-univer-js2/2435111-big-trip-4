@@ -3,7 +3,6 @@ import ListPresenter from './presenter/list-presenter.js';
 import TripInfoPresenter from './presenter/trip-info-presenter.js';
 import { render } from './framework/render.js';
 import FilterView from './view/filter-view.js';
-import SortView from './view/sort-view.js';
 import { generateFilter } from './mock/filter.js';
 
 const tripMain = document.querySelector('.trip-main');
@@ -22,7 +21,6 @@ const tripInfoPresenter = new TripInfoPresenter({
 const filters = generateFilter(pointsModel.points);
 
 render(new FilterView({ filters }), tripFilterContainer);
-render(new SortView(), tripEventsContainer);
 
 tripInfoPresenter.init();
 listPresenter.init();

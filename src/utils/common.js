@@ -2,7 +2,6 @@ const getRandomArrayElement = (items) => items[Math.floor(Math.random() * items.
 
 const getRandomInteger = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-
 const getRandomElementsArray = (arr, length) => {
   const values = [];
   while (values.length < length) {
@@ -12,4 +11,6 @@ const getRandomElementsArray = (arr, length) => {
   return values;
 };
 
-export { getRandomArrayElement, getRandomInteger, getRandomElementsArray };
+const updateItem = (items, update) => items.map((item) => item.id === update.id ? update : item);
+
+export { getRandomArrayElement, getRandomInteger, getRandomElementsArray, updateItem };
