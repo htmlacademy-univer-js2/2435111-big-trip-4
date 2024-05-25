@@ -6,21 +6,26 @@ import SortView from '../view/sort-view.js';
 import { updateItem } from '../utils/common.js';
 import { SortType } from '../const.js';
 import { sortByDay, sortByTime, sortByPrice } from '../utils/point.js';
+import FilterView from '../view/filter-view.js';
+import { generateFilter } from '../mock/filter.js';
 
 export default class ListPresenter {
   #listContainer = null;
+  #filtersContainer = null;
   #pointsModel = null;
 
   #listComponent = new PointListView();
   #sortComponent = null;
+  #filtersComponent = null;
   #listMessageComponent = new PointListMessageView();
 
   #listPoints = [];
   #pointPresenter = new Map();
   #currentSortType = SortType.DAY;
 
-  constructor({ listContainer, pointsModel }) {
+  constructor({ listContainer, filtersContainer, pointsModel }) {
     this.#listContainer = listContainer;
+    this.#filtersContainer = filtersContainer;
     this.#pointsModel = pointsModel;
   }
 
@@ -58,6 +63,13 @@ export default class ListPresenter {
     this.#clearPointList();
     this.#renderList();
   };
+
+  #renderFilters() {
+    const filters = generateFilter(this.#listPoints);
+    this.#filtersComponent = new FilterView({ filters });
+
+    render(this.#filtersComponent, this.#filtersContainer);
+  }
 
   #sortPoints(sortType) {
     switch (sortType) {
@@ -106,6 +118,7 @@ export default class ListPresenter {
 
   #renderBoard() {
     this.#renderSort();
+    this.#renderFilters();
     this.#renderList();
   }
 }
