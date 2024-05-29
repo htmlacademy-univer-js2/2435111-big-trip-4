@@ -1,63 +1,42 @@
 import TripInfoView from '../view/trip-info-view.js';
-import TripInfoMainView from '../view/trip-info-main-view.js';
-import TripDatesView from '../view/trip-dates-view.js';
-import TripRouteView from '../view/trip-route-view.js';
-import TripTotalPriceView from '../view/trip-total-price-view.js';
-import { render, RenderPosition } from '../framework/render.js';
-import { destinations } from '../mock/point.js';
+import { remove, render, RenderPosition, replace } from '../framework/render.js';
+import { sortByDay } from '../utils/point.js';
 
 export default class TripInfoPresenter {
   #tripInfoContainer = null;
   #pointsModel = null;
+  #offersByTypeModel = null;
+  #destinationsModel = null;
 
-  #tripInfoComponent = new TripInfoView();
-  #tripInfoMainComponent = new TripInfoMainView();
+  #tripInfoComponent = null;
 
-  #listPoints = [];
-
-  constructor({ tripInfoContainer, pointsModel }) {
+  constructor({ tripInfoContainer, pointsModel, offersByTypeModel, destinationsModel }) {
     this.#tripInfoContainer = tripInfoContainer;
     this.#pointsModel = pointsModel;
+    this.#offersByTypeModel = offersByTypeModel;
+    this.#destinationsModel = destinationsModel;
+
+    this.#pointsModel.addObserver(this.#handleModelEvent);
   }
 
   init() {
-    this.#listPoints = [...this.#pointsModel.points];
+    const points = this.#pointsModel.points.sort(sortByDay);
+    const offersByType = this.#offersByTypeModel.offersByType;
+    const destinations = this.#destinationsModel.destinations;
 
-    render(this.#tripInfoComponent, this.#tripInfoContainer, RenderPosition.AFTERBEGIN);
-    render(this.#tripInfoMainComponent, this.#tripInfoComponent.element);
-    this.#renderTotalPrice(this.#listPoints);
-    this.#renderTripRoute(this.#listPoints);
-    this.#renderTripDates(this.#listPoints);
+    const prevInfoComponent = this.#tripInfoComponent;
+    this.#tripInfoComponent = new TripInfoView(points, offersByType, destinations);
+
+    if (prevInfoComponent === null) {
+      render(this.#tripInfoComponent, this.#tripInfoContainer, RenderPosition.AFTERBEGIN);
+      return;
+    }
+
+    replace(this.#tripInfoComponent, prevInfoComponent);
+    remove(prevInfoComponent);
   }
 
-  #renderTripRoute(points) {
-    const routeCities = [];
-    points.forEach((point) => {
-      const pointDestination = destinations.find((appointment) => point.destination === appointment.id);
-      routeCities.push(pointDestination.name);
-    });
-
-    const waypoints = Array.from(new Set(routeCities));
-    render(new TripRouteView(waypoints), this.#tripInfoMainComponent.element);
-  }
-
-  #renderTripDates(points) {
-    const datesFrom = [];
-    points.forEach((point) => {
-      datesFrom.push(point.dateFrom);
-    });
-
-    datesFrom.sort(); // временное решение
-
-    render(new TripDatesView(datesFrom), this.#tripInfoMainComponent.element);
-  }
-
-  #renderTotalPrice(points) {
-    let totalPrice = 0;
-    points.forEach((point) => {
-      totalPrice += point.basePrice;
-    });
-
-    render(new TripTotalPriceView(totalPrice), this.#tripInfoComponent.element);
-  }
+  #handleModelEvent = () => {
+    this.init();
+  };
 }

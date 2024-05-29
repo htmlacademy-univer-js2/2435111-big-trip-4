@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
 import Duration from 'dayjs/plugin/duration';
-import { destinations, offersByType } from '../mock/point.js';
 import AbstractView from '../framework/view/abstract-view.js';
 
 const DATE_FORMAT = 'DD MMM';
@@ -10,7 +9,7 @@ const MILLISECONDS_AMOUNT_IN_DAY = 86400000;
 
 dayjs.extend(Duration);
 
-function createPointTemplate(point) {
+function createPointTemplate(point, offersByType, destinations) {
   const { type, dateFrom, dateTo, basePrice, destination, offers, isFavorite } = point;
 
   const pointTypeOffer = offersByType.find((offer) => offer.type === type);
@@ -81,13 +80,19 @@ function createPointTemplate(point) {
 
 export default class PointView extends AbstractView {
   #point = null;
+  #offersBytype = null;
+  #destinations = null;
+
   #handleRollupButtonClick = null;
   #handleFavoriteClick = null;
 
-  constructor({ point, onRollupButtonClick, onFavoriteClick }) {
+  constructor({ point, offersByType, destinations, onRollupButtonClick, onFavoriteClick }) {
     super();
 
     this.#point = point;
+    this.#offersBytype = offersByType;
+    this.#destinations = destinations;
+
     this.#handleRollupButtonClick = onRollupButtonClick;
     this.#handleFavoriteClick = onFavoriteClick;
 
@@ -98,7 +103,7 @@ export default class PointView extends AbstractView {
   }
 
   get template() {
-    return createPointTemplate(this.#point);
+    return createPointTemplate(this.#point, this.#offersBytype, this.#destinations);
   }
 
   #rollupButtonClickHandler = (evt) => {
