@@ -11,6 +11,12 @@ const getRandomElementsArray = (arr, length) => {
   return values;
 };
 
-const updateItem = (items, update) => items.map((item) => item.id === update.id ? update : item);
+const ucFirst = (str) => {
+  if (!str) {
+    return str;
+  }
 
-export { getRandomArrayElement, getRandomInteger, getRandomElementsArray, updateItem };
+  return str[0].toUpperCase() + str.slice(1);
+};
+
+export { getRandomArrayElement, getRandomInteger, getRandomElementsArray, ucFirst };
