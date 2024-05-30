@@ -7,32 +7,31 @@ import { FilterType, SortType, UpdateType, UserAction } from '../const.js';
 import { sortByDay, sortByTime, sortByPrice } from '../utils/point.js';
 import { filter } from '../utils/filter.js';
 import NewPointPresenter from './new-point-presenter.js';
+import LoadingView from '../view/loading-view.js';
 
 export default class ListPresenter {
   #listContainer = null;
   #pointsModel = null;
-  #offersByTypeModel = null;
-  #destinationsModel = null;
   #filterModel = null;
 
   #listComponent = new PointListView();
+  #loadingComponent = new LoadingView();
   #sortComponent = null;
   #listMessageComponent = null;
 
   #pointPresenter = new Map();
   #newPointPresenter = null;
   #currentSortType = SortType.DAY;
+  #isLoading = true;
 
-  constructor({ listContainer, pointsModel, offersByTypeModel, destinationsModel, filterModel, onNewPointDestroy }) {
+  constructor({ listContainer, pointsModel, filterModel, onNewPointDestroy }) {
     this.#listContainer = listContainer;
     this.#pointsModel = pointsModel;
-    this.#offersByTypeModel = offersByTypeModel;
-    this.#destinationsModel = destinationsModel;
     this.#filterModel = filterModel;
 
     this.#newPointPresenter = new NewPointPresenter({
-      offersByTypeModel: this.#offersByTypeModel,
-      destinationsModel: this.#destinationsModel,
+      offers: this.#pointsModel.offers,
+      destinations: this.#pointsModel.destinations,
       pointListContainer: this.#listComponent.element,
       onDataChange: this.#handleViewAction,
       onDestroy: onNewPointDestroy
@@ -69,8 +68,8 @@ export default class ListPresenter {
 
   #renderPoint(point) {
     const pointPresenter = new PointPresenter({
-      offersByTypeModel: this.#offersByTypeModel,
-      destinationsModel: this.#destinationsModel,
+      offers: this.#pointsModel.offers,
+      destinations: this.#pointsModel.destinations,
       pointListContainer: this.#listComponent.element,
       onDataChange: this.#handleViewAction,
       onModeChange: this.#handleModeChange
@@ -106,6 +105,11 @@ export default class ListPresenter {
         this.#clearBoard({ resetSortType: true });
         this.#renderBoard();
         break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
+        this.#renderBoard();
+        break;
     }
   };
 
@@ -139,12 +143,17 @@ export default class ListPresenter {
     render(this.#listMessageComponent, this.#listComponent.element);
   }
 
+  #renderLoadingMessage() {
+    render(this.#loadingComponent, this.#listComponent.element);
+  }
+
   #clearBoard({ resetSortType = false } = {}) {
     this.#newPointPresenter.destroy();
     this.#pointPresenter.forEach((presenter) => presenter.destroy());
     this.#pointPresenter.clear();
 
     remove(this.#sortComponent);
+    remove(this.#loadingComponent);
     remove(this.#listMessageComponent);
 
     if (resetSortType) {
@@ -153,9 +162,15 @@ export default class ListPresenter {
   }
 
   #renderBoard() {
+    render(this.#listComponent, this.#listContainer);
+
+    if (this.#isLoading) {
+      this.#renderLoadingMessage();
+      return;
+    }
+
     this.#renderSort();
 
-    render(this.#listComponent, this.#listContainer);
     const points = this.points;
 
     if (points.length) {

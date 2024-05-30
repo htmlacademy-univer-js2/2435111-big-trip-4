@@ -10,8 +10,8 @@ const Mode = {
 };
 
 export default class PointPresenter {
-  #offersByTypeModel = null;
-  #destinationsModel = null;
+  #offers = null;
+  #destinations = null;
 
   #pointListContainer = null;
   #handleDataChange = null;
@@ -23,9 +23,9 @@ export default class PointPresenter {
   #point = null;
   #mode = Mode.DEFAULT;
 
-  constructor({ offersByTypeModel, destinationsModel, pointListContainer, onDataChange, onModeChange }) {
-    this.#offersByTypeModel = offersByTypeModel;
-    this.#destinationsModel = destinationsModel;
+  constructor({ offers, destinations, pointListContainer, onDataChange, onModeChange }) {
+    this.#offers = offers;
+    this.#destinations = destinations;
 
     this.#pointListContainer = pointListContainer;
     this.#handleDataChange = onDataChange;
@@ -40,16 +40,16 @@ export default class PointPresenter {
 
     this.#pointComponent = new PointView({
       point: this.#point,
-      offersByType: this.#offersByTypeModel.offersByType,
-      destinations: this.#destinationsModel.destinations,
+      offersByType: this.#offers,
+      destinations: this.#destinations,
       onRollupButtonClick: this.#handleRollupButtonClick,
       onFavoriteClick: this.#handleFavoriteClick
     });
 
     this.#pointEditComponent = new EditPointView({
       point: this.#point,
-      offersByType: this.#offersByTypeModel.offersByType,
-      destinations: this.#destinationsModel.destinations,
+      offersByType: this.#offers,
+      destinations: this.#destinations,
       onFormSubmit: this.#handleEditFormSubmit,
       onRollupButtonClick: this.#handleEditFormRollupButtonClick,
       onResetButtonClick: this.#handleEditFormDeleteButtonClick
