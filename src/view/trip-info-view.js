@@ -5,7 +5,7 @@ const DATE_FORMAT = 'MMM DD';
 const MULTIPLE_SYMBOL = '...';
 const MAX_CITIES_VISIBLE_COUNT = 3;
 
-function createTripInfoTemplate(points, offersByType, destinations) {
+const createTripInfoTemplate = (points, offersByType, destinations) => {
 
   const createTripRouteTemplate = () => {
     const routeCities = [];
@@ -60,7 +60,7 @@ function createTripInfoTemplate(points, offersByType, destinations) {
     return `<p class="trip-info__dates">${startDate.format(DATE_FORMAT)}&nbsp;&mdash;&nbsp;${endDate.format(endDateFormat)}</p>`;
   };
 
-  const createTripTotalPrice = () => {
+  const createTripTotalPriceTemplate = () => {
 
     let totalPrice = 0;
     points.forEach((point) => {
@@ -71,11 +71,8 @@ function createTripInfoTemplate(points, offersByType, destinations) {
         return;
       }
 
-      let totalPriceOfSelectedtOffers = 0;
       const selectedOffers = pointTypeOffer.offers.filter((offer) => point.offers.includes(offer.id));
-      selectedOffers.forEach((offer) => { totalPriceOfSelectedtOffers += +offer.price; });
-
-      totalPrice += totalPriceOfSelectedtOffers;
+      selectedOffers.forEach((offer) => { totalPrice += +offer.price; });
     });
 
     return `<p class="trip-info__cost">Total: &euro;&nbsp;<span class="trip-info__cost-value">${totalPrice}</span></p>`;
@@ -86,9 +83,9 @@ function createTripInfoTemplate(points, offersByType, destinations) {
               ${createTripRouteTemplate()}
               ${createTripInfoDatesTemplate()}
             </div>
-            ${createTripTotalPrice()}
+            ${createTripTotalPriceTemplate()}
           </section>`;
-}
+};
 
 export default class TripInfoView extends AbstractView {
   #points = null;
@@ -108,4 +105,3 @@ export default class TripInfoView extends AbstractView {
   }
 
 }
-

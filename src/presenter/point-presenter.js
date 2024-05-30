@@ -120,14 +120,6 @@ export default class PointPresenter {
     this.#pointEditComponent.shake(resetFormState);
   }
 
-  #escapeKeydownHandler = (evt) => {
-    if (isEscapeKey(evt)) {
-      evt.preventDefault();
-      this.#pointEditComponent.reset(this.#point);
-      this.#replaceFormToPoint();
-    }
-  };
-
   #replacePointToForm() {
     replace(this.#pointEditComponent, this.#pointComponent);
     document.addEventListener('keydown', this.#escapeKeydownHandler);
@@ -172,5 +164,13 @@ export default class PointPresenter {
       UpdateType.PATCH,
       { ...this.#point, isFavorite: !this.#point.isFavorite }
     );
+  };
+
+  #escapeKeydownHandler = (evt) => {
+    if (isEscapeKey(evt)) {
+      evt.preventDefault();
+      this.#pointEditComponent.reset(this.#point);
+      this.#replaceFormToPoint();
+    }
   };
 }

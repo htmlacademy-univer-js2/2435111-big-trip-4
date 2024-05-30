@@ -2,32 +2,35 @@ import dayjs from 'dayjs';
 import Duration from 'dayjs/plugin/duration';
 import AbstractView from '../framework/view/abstract-view.js';
 
+dayjs.extend(Duration);
+
 const DATE_FORMAT = 'DD MMM';
 const TIME_FORMAT = 'HH:mm';
 const MILLISECONDS_AMOUNT_IN_HOUR = 3600000;
 const MILLISECONDS_AMOUNT_IN_DAY = 86400000;
 
-dayjs.extend(Duration);
-
-function createPointTemplate(point, offersByType, destinations) {
+const createPointTemplate = (point, offersByType, destinations) => {
   const { type, dateFrom, dateTo, basePrice, destination, offers, isFavorite } = point;
+
+  const parsDateTo = dayjs(dateTo);
+  const parsDateFrom = dayjs(dateFrom);
 
   const pointTypeOffer = offersByType.find((offer) => offer.type === type);
   const pointDestination = destinations.find((appointment) => destination === appointment.id);
 
-  let offersTemplate = '';
-  if (pointTypeOffer) {
-    offersTemplate = pointTypeOffer.offers
+  const createOffersTemplate = () => {
+    if (!pointTypeOffer) {
+      return '';
+    }
+
+    return pointTypeOffer.offers
       .filter((offer) => offers.includes(offer.id))
       .map((offer) => `<li class="event__offer">
-                      <span class="event__offer-title">${offer.title}</span>
-                      &plus;&euro;&nbsp;
-                      <span class="event__offer-price">${offer.price}</span>
-                    </li>`).join('');
-  }
-
-  const parsDateTo = dayjs(dateTo);
-  const parsDateFrom = dayjs(dateFrom);
+                    <span class="event__offer-title">${offer.title}</span>
+                    &plus;&euro;&nbsp;
+                    <span class="event__offer-price">${offer.price}</span>
+                  </li>`).join('');
+  };
 
   const getEventDuration = (from, to) => {
     const eventDuration = to.diff(from);
@@ -63,7 +66,7 @@ function createPointTemplate(point, offersByType, destinations) {
     </p>
     <h4 class="visually-hidden">Offers:</h4>
     <ul class="event__selected-offers">
-    ${offersTemplate}
+    ${createOffersTemplate()}
     </ul>
     <button class="event__favorite-btn ${isFavorite ? 'event__favorite-btn--active' : ''}" type="button">
       <span class="visually-hidden">Add to favorite</span>
@@ -76,7 +79,7 @@ function createPointTemplate(point, offersByType, destinations) {
     </button>
   </div >
 </li>`;
-}
+};
 
 export default class PointView extends AbstractView {
   #point = null;
