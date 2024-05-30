@@ -4,8 +4,7 @@ import { isEscapeKey } from '../utils/point.js';
 import { UpdateType, UserAction } from '../const.js';
 
 export default class NewPointPresenter {
-  #offers = null;
-  #destinations = null;
+  #pointsModel = null;
 
   #pointListContainer = null;
   #handleDataChange = null;
@@ -13,9 +12,8 @@ export default class NewPointPresenter {
 
   #pointEditComponent = null;
 
-  constructor({ offers, destinations, pointListContainer, onDataChange, onDestroy }) {
-    this.#offers = offers;
-    this.#destinations = destinations;
+  constructor({ pointsModel, pointListContainer, onDataChange, onDestroy }) {
+    this.#pointsModel = pointsModel;
 
     this.#pointListContainer = pointListContainer;
     this.#handleDataChange = onDataChange;
@@ -28,8 +26,8 @@ export default class NewPointPresenter {
     }
 
     this.#pointEditComponent = new EditPointView({
-      offersByType: this.#offers,
-      destinations: this.#destinations,
+      offersByType: this.#pointsModel.offers,
+      destinations: this.#pointsModel.destinations,
       onFormSubmit: this.#handleFormSubmit,
       onResetButtonClick: this.#handleFormCancelButtonClick
     });
@@ -52,6 +50,25 @@ export default class NewPointPresenter {
     document.removeEventListener('keydown', this.#escapeKeydownHandler);
   }
 
+  setSaving() {
+    this.#pointEditComponent.updateElement({
+      isDisabled: true,
+      isSaving: true
+    });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this.#pointEditComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#pointEditComponent.shake(resetFormState);
+  }
+
   #escapeKeydownHandler = (evt) => {
     if (isEscapeKey(evt)) {
       evt.preventDefault();
@@ -65,7 +82,6 @@ export default class NewPointPresenter {
       UpdateType.MINOR,
       point
     );
-    this.destroy();
   };
 
   #handleFormCancelButtonClick = () => {

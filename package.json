@@ -30,7 +30,6 @@
     "copy-webpack-plugin": "^12.0.2",
     "dayjs": "^1.11.10",
     "flatpickr": "^4.6.13",
-    "nanoid": "^5.0.7",
     "webpack": "^5.90.3",
     "webpack-cli": "^5.1.4"
   },
