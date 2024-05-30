@@ -12,7 +12,6 @@ export default class TripInfoPresenter {
     this.#tripInfoContainer = tripInfoContainer;
     this.#pointsModel = pointsModel;
 
-    
     this.#pointsModel.addObserver(this.#handleModelEvent);
   }
 
