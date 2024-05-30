@@ -13,17 +13,16 @@ function createTripInfoTemplate(points, offersByType, destinations) {
       const pointDestination = destinations.find((appointment) => point.destination === appointment.id);
       routeCities.push(pointDestination.name);
     });
-    const waypoints = Array.from(new Set(routeCities));
-    const startPoint = waypoints[0];
-    const endPoint = waypoints.at(-1);
-    let middlePoint = waypoints[1];
+    const startPoint = routeCities[0];
+    const endPoint = routeCities.at(-1);
+    let middlePoint = routeCities[1];
     let routeString = '';
 
-    if (waypoints.length > MAX_CITIES_VISIBLE_COUNT) {
+    if (routeCities.length > MAX_CITIES_VISIBLE_COUNT) {
       middlePoint = MULTIPLE_SYMBOL;
     }
 
-    switch (waypoints.length) {
+    switch (routeCities.length) {
       case 1:
         routeString = startPoint;
         break;
@@ -34,7 +33,7 @@ function createTripInfoTemplate(points, offersByType, destinations) {
         routeString = `${startPoint} &mdash; ${middlePoint} &mdash; ${endPoint}`;
     }
 
-    if (!waypoints.length) {
+    if (!routeCities.length) {
       routeString = 'No events';
     }
 
@@ -109,3 +108,4 @@ export default class TripInfoView extends AbstractView {
   }
 
 }
+

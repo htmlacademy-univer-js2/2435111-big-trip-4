@@ -1,111 +1,55 @@
-import dayjs from 'dayjs';
+import { SortType } from '../const.js';
 import AbstractView from '../framework/view/abstract-view.js';
 
-const DATE_FORMAT = 'MMM DD';
-const MULTIPLE_SYMBOL = '...';
-const MAX_CITIES_VISIBLE_COUNT = 3;
+function createSortTemplate(currentSortType) {
+  return `<form class="trip-events__trip-sort  trip-sort" action="#" method="get">
+    <div class="trip-sort__item  trip-sort__item--day">
+      <input id="sort-day" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-day" ${currentSortType === SortType.DAY ? 'checked' : ''}>
+      <label class="trip-sort__btn" for="sort-day" data-sort-type="${SortType.DAY}">Day</label>
+    </div>
 
-function createTripInfoTemplate(points, offersByType, destinations) {
+    <div class="trip-sort__item  trip-sort__item--event">
+      <input id="sort-event" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-event" disabled>
+      <label class="trip-sort__btn" for="sort-event">Event</label>
+    </div>
 
-  const createTripRouteTemplate = () => {
-    const routeCities = [];
-    points.forEach((point) => {
-      const pointDestination = destinations.find((appointment) => point.destination === appointment.id);
-      routeCities.push(pointDestination.name);
-    });
-    const waypoints = Array.from(new Set(routeCities));
-    const startPoint = waypoints[0];
-    const endPoint = waypoints.at(-1);
-    let middlePoint = waypoints[1];
-    let routeString = '';
+    <div class="trip-sort__item  trip-sort__item--time">
+      <input id="sort-time" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-time" ${currentSortType === SortType.TIME ? 'checked' : ''}>
+      <label class="trip-sort__btn" for="sort-time" data-sort-type="${SortType.TIME}">Time</label>
+    </div>
 
-    if (waypoints.length > MAX_CITIES_VISIBLE_COUNT) {
-      middlePoint = MULTIPLE_SYMBOL;
-    }
+    <div class="trip-sort__item  trip-sort__item--price">
+      <input id="sort-price" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-price" ${currentSortType === SortType.PRICE ? 'checked' : ''}>
+      <label class="trip-sort__btn" for="sort-price" data-sort-type="${SortType.PRICE}">Price</label>
+    </div>
 
-    switch (waypoints.length) {
-      case 1:
-        routeString = startPoint;
-        break;
-      case 2:
-        routeString = `${startPoint} &mdash; ${endPoint}`;
-        break;
-      default:
-        routeString = `${startPoint} &mdash; ${middlePoint} &mdash; ${endPoint}`;
-    }
-
-    if (!waypoints.length) {
-      routeString = 'No events';
-    }
-
-    return `<h1 class="trip-info__title">
-            ${routeString}
-          </h1>`;
-  };
-
-  const createTripInfoDatesTemplate = () => {
-
-    if (!points.length) {
-      return '';
-    }
-
-    const startDate = dayjs(points[0].dateFrom);
-    const endDate = dayjs(points.at(-1).dateTo);
-
-    let endDateFormat = DATE_FORMAT;
-
-    if (endDate.isSame(startDate, 'month')) {
-      endDateFormat = 'DD';
-    }
-
-    return `<p class="trip-info__dates">${startDate.format(DATE_FORMAT)}&nbsp;&mdash;&nbsp;${endDate.format(endDateFormat)}</p>`;
-  };
-
-  const createTripTotalPrice = () => {
-
-    let totalPrice = 0;
-    points.forEach((point) => {
-      totalPrice += +point.basePrice;
-
-      const pointTypeOffer = offersByType.find((offer) => offer.type === point.type);
-      if (!pointTypeOffer) {
-        return;
-      }
-
-      let totalPriceOfSelectedtOffers = 0;
-      const selectedOffers = pointTypeOffer.offers.filter((offer) => point.offers.includes(offer.id));
-      selectedOffers.forEach((offer) => { totalPriceOfSelectedtOffers += +offer.price; });
-
-      totalPrice += totalPriceOfSelectedtOffers;
-    });
-
-    return `<p class="trip-info__cost">Total: &euro;&nbsp;<span class="trip-info__cost-value">${totalPrice}</span></p>`;
-  };
-
-  return `<section class="trip-main__trip-info  trip-info">
-            <div class="trip-info__main">
-              ${createTripRouteTemplate()}
-              ${createTripInfoDatesTemplate()}
-            </div>
-            ${createTripTotalPrice()}
-          </section>`;
+    <div class="trip-sort__item  trip-sort__item--offer">
+      <input id="sort-offer" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-offer" disabled>
+      <label class="trip-sort__btn" for="sort-offer">Offers</label>
+    </div>
+  </form>`;
 }
 
-export default class TripInfoView extends AbstractView {
-  #points = null;
-  #offersByType = null;
-  #destinations = null;
+export default class SortView extends AbstractView {
+  #currentSortType = null;
+  #handleSortTypeChange = null;
 
-  constructor(points, offersByType, destinations) {
+  constructor({ currentSortType, onSortTypeChange }) {
     super();
 
-    this.#points = points;
-    this.#offersByType = offersByType;
-    this.#destinations = destinations;
+    this.#currentSortType = currentSortType;
+    this.#handleSortTypeChange = onSortTypeChange;
+    this.element.addEventListener('click', this.#sortTypeChangeHandler);
   }
 
   get template() {
-    return createTripInfoTemplate(this.#points, this.#offersByType, this.#destinations);
+    return createSortTemplate(this.#currentSortType);
   }
+
+  #sortTypeChangeHandler = (evt) => {
+    if (evt.target.hasAttribute('data-sort-type')) {
+      this.#handleSortTypeChange(evt.target.dataset.sortType);
+    }
+  };
 
 }

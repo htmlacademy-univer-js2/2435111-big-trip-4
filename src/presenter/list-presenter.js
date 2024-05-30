@@ -8,6 +8,13 @@ import { sortByDay, sortByTime, sortByPrice } from '../utils/point.js';
 import { filter } from '../utils/filter.js';
 import NewPointPresenter from './new-point-presenter.js';
 import LoadingView from '../view/loading-view.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
+import ErrorView from '../view/error-view.js';
+
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000
+};
 
 export default class ListPresenter {
   #listContainer = null;
@@ -16,6 +23,7 @@ export default class ListPresenter {
 
   #listComponent = new PointListView();
   #loadingComponent = new LoadingView();
+  #errorComponent = new ErrorView();
   #sortComponent = null;
   #listMessageComponent = null;
 
@@ -23,6 +31,10 @@ export default class ListPresenter {
   #newPointPresenter = null;
   #currentSortType = SortType.DAY;
   #isLoading = true;
+  #uiBlocker = new UiBlocker({
+    lowerLimit: TimeLimit.LOWER_LIMIT,
+    upperLimit: TimeLimit.UPPER_LIMIT
+  });
 
   constructor({ listContainer, pointsModel, filterModel, onNewPointDestroy }) {
     this.#listContainer = listContainer;
@@ -30,8 +42,7 @@ export default class ListPresenter {
     this.#filterModel = filterModel;
 
     this.#newPointPresenter = new NewPointPresenter({
-      offers: this.#pointsModel.offers,
-      destinations: this.#pointsModel.destinations,
+      pointsModel,
       pointListContainer: this.#listComponent.element,
       onDataChange: this.#handleViewAction,
       onDestroy: onNewPointDestroy
@@ -78,18 +89,37 @@ export default class ListPresenter {
     this.#pointPresenter.set(point.id, pointPresenter);
   }
 
-  #handleViewAction = (actionType, updateType, update) => {
+  #handleViewAction = async (actionType, updateType, update) => {
+    this.#uiBlocker.block();
+
     switch (actionType) {
       case UserAction.UPDATE_POINT:
-        this.#pointsModel.updatePoint(updateType, update);
+        this.#pointPresenter.get(update.id).setSaving();
+        try {
+          await this.#pointsModel.updatePoint(updateType, update);
+        } catch (err) {
+          this.#pointPresenter.get(update.id).setAborting();
+        }
         break;
       case UserAction.ADD_POINT:
-        this.#pointsModel.addPoint(updateType, update);
+        this.#newPointPresenter.setSaving();
+        try {
+          await this.#pointsModel.addPoint(updateType, update);
+        } catch (err) {
+          this.#pointPresenter.setAborting();
+        }
         break;
       case UserAction.DELETE_POINT:
-        this.#pointsModel.deletePoint(updateType, update);
+        this.#pointPresenter.get(update.id).setDeleting();
+        try {
+          await this.#pointsModel.deletePoint(updateType, update);
+        } catch (err) {
+          this.#pointPresenter.get(update.id).setAborting();
+        }
         break;
     }
+
+    this.#uiBlocker.unblock();
   };
 
   #handleModelEvent = (updateType, data) => {
@@ -147,6 +177,10 @@ export default class ListPresenter {
     render(this.#loadingComponent, this.#listComponent.element);
   }
 
+  #renderErrorMessage() {
+    render(this.#errorComponent, this.#listComponent.element);
+  }
+
   #clearBoard({ resetSortType = false } = {}) {
     this.#newPointPresenter.destroy();
     this.#pointPresenter.forEach((presenter) => presenter.destroy());
@@ -169,9 +203,14 @@ export default class ListPresenter {
       return;
     }
 
-    this.#renderSort();
-
     const points = this.points;
+
+    if (!points.length && !this.#pointsModel.offers.length && !this.#pointsModel.destinations.length) {
+      this.#renderErrorMessage();
+      return;
+    }
+
+    this.#renderSort();
 
     if (points.length) {
       remove(this.#listMessageComponent);
