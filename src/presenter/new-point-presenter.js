@@ -4,8 +4,8 @@ import { isEscapeKey } from '../utils/point.js';
 import { UpdateType, UserAction } from '../const.js';
 
 export default class NewPointPresenter {
-  #offersByTypeModel = null;
-  #destinationsModel = null;
+  #offers = null;
+  #destinations = null;
 
   #pointListContainer = null;
   #handleDataChange = null;
@@ -13,9 +13,9 @@ export default class NewPointPresenter {
 
   #pointEditComponent = null;
 
-  constructor({ offersByTypeModel, destinationsModel, pointListContainer, onDataChange, onDestroy }) {
-    this.#offersByTypeModel = offersByTypeModel;
-    this.#destinationsModel = destinationsModel;
+  constructor({ offers, destinations, pointListContainer, onDataChange, onDestroy }) {
+    this.#offers = offers;
+    this.#destinations = destinations;
 
     this.#pointListContainer = pointListContainer;
     this.#handleDataChange = onDataChange;
@@ -28,8 +28,8 @@ export default class NewPointPresenter {
     }
 
     this.#pointEditComponent = new EditPointView({
-      offersByType: this.#offersByTypeModel.offersByType,
-      destinations: this.#destinationsModel.destinations,
+      offersByType: this.#offers,
+      destinations: this.#destinations,
       onFormSubmit: this.#handleFormSubmit,
       onResetButtonClick: this.#handleFormCancelButtonClick
     });
