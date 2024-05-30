@@ -89,6 +89,70 @@ export default class ListPresenter {
     this.#pointPresenter.set(point.id, pointPresenter);
   }
 
+  #renderSort() {
+    this.#sortComponent = new SortView({
+      currentSortType: this.#currentSortType,
+      onSortTypeChange: this.#handleSortTypeChange
+    });
+
+    render(this.#sortComponent, this.#listContainer, RenderPosition.AFTERBEGIN);
+  }
+
+  #renderListMessage() {
+    this.#listMessageComponent = new PointListMessageView(this.#filterModel.filter);
+
+    render(this.#listMessageComponent, this.#listComponent.element);
+  }
+
+  #renderLoadingMessage() {
+    render(this.#loadingComponent, this.#listComponent.element);
+  }
+
+  #renderErrorMessage() {
+    render(this.#errorComponent, this.#listComponent.element);
+  }
+
+  #clearBoard({ resetSortType = false } = {}) {
+    this.#newPointPresenter.destroy();
+    this.#pointPresenter.forEach((presenter) => presenter.destroy());
+    this.#pointPresenter.clear();
+
+    remove(this.#sortComponent);
+    remove(this.#loadingComponent);
+    remove(this.#listMessageComponent);
+
+    if (resetSortType) {
+      this.#currentSortType = SortType.DAY;
+    }
+  }
+
+  #renderBoard() {
+    render(this.#listComponent, this.#listContainer);
+
+    if (this.#isLoading) {
+      this.#renderLoadingMessage();
+      return;
+    }
+
+    const points = this.points;
+
+    if (!points.length && !this.#pointsModel.offers.length && !this.#pointsModel.destinations.length) {
+      this.#renderErrorMessage();
+      return;
+    }
+
+    this.#renderSort();
+
+    if (points.length) {
+      remove(this.#listMessageComponent);
+      for (const point of points) {
+        this.#renderPoint(point);
+      }
+    } else {
+      this.#renderListMessage();
+    }
+  }
+
   #handleViewAction = async (actionType, updateType, update) => {
     this.#uiBlocker.block();
 
@@ -157,68 +221,4 @@ export default class ListPresenter {
     this.#clearBoard();
     this.#renderBoard();
   };
-
-  #renderSort() {
-    this.#sortComponent = new SortView({
-      currentSortType: this.#currentSortType,
-      onSortTypeChange: this.#handleSortTypeChange
-    });
-
-    render(this.#sortComponent, this.#listContainer, RenderPosition.AFTERBEGIN);
-  }
-
-  #renderListMessage() {
-    this.#listMessageComponent = new PointListMessageView(this.#filterModel.filter);
-
-    render(this.#listMessageComponent, this.#listComponent.element);
-  }
-
-  #renderLoadingMessage() {
-    render(this.#loadingComponent, this.#listComponent.element);
-  }
-
-  #renderErrorMessage() {
-    render(this.#errorComponent, this.#listComponent.element);
-  }
-
-  #clearBoard({ resetSortType = false } = {}) {
-    this.#newPointPresenter.destroy();
-    this.#pointPresenter.forEach((presenter) => presenter.destroy());
-    this.#pointPresenter.clear();
-
-    remove(this.#sortComponent);
-    remove(this.#loadingComponent);
-    remove(this.#listMessageComponent);
-
-    if (resetSortType) {
-      this.#currentSortType = SortType.DAY;
-    }
-  }
-
-  #renderBoard() {
-    render(this.#listComponent, this.#listContainer);
-
-    if (this.#isLoading) {
-      this.#renderLoadingMessage();
-      return;
-    }
-
-    const points = this.points;
-
-    if (!points.length && !this.#pointsModel.offers.length && !this.#pointsModel.destinations.length) {
-      this.#renderErrorMessage();
-      return;
-    }
-
-    this.#renderSort();
-
-    if (points.length) {
-      remove(this.#listMessageComponent);
-      for (let i = 0; i < points.length; i++) {
-        this.#renderPoint(points[i]);
-      }
-    } else {
-      this.#renderListMessage();
-    }
-  }
 }

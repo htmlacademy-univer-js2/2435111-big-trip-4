@@ -69,13 +69,6 @@ export default class NewPointPresenter {
     this.#pointEditComponent.shake(resetFormState);
   }
 
-  #escapeKeydownHandler = (evt) => {
-    if (isEscapeKey(evt)) {
-      evt.preventDefault();
-      this.destroy();
-    }
-  };
-
   #handleFormSubmit = (point) => {
     this.#handleDataChange(
       UserAction.ADD_POINT,
@@ -86,6 +79,13 @@ export default class NewPointPresenter {
 
   #handleFormCancelButtonClick = () => {
     this.destroy();
+  };
+
+  #escapeKeydownHandler = (evt) => {
+    if (isEscapeKey(evt)) {
+      evt.preventDefault();
+      this.destroy();
+    }
   };
 
 }

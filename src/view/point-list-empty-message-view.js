@@ -8,9 +8,7 @@ const messagesByFilter = {
   [FilterType.FUTURE]: 'There are no future events now'
 };
 
-function createListMessageTemplate(filterType) {
-  return `<p class="trip-events__msg">${messagesByFilter[filterType]}</p>`;
-}
+const createListMessageTemplate = (filterType) => `<p class="trip-events__msg">${messagesByFilter[filterType]}</p>`;
 
 export default class PointListMessageView extends AbstractView {
   #filterType = null;
